@@ -17,9 +17,9 @@ class CreateSecuritySystemsTable extends Migration
             $table->increments('id');
             $table->string('description', 100);
             $table->string('acronyms', 10);
-            $table->string('email', 100);
-            $table->string('url', 50);
-            $table->enum('status', ['Ativo', 'Cancelado']);
+            $table->string('email', 100)->nullable();
+            $table->string('url', 50)->nullable();
+            $table->enum('status', ['Ativo', 'Cancelado'])->default('Ativo');
             $table->string('user', 100);
             $table->text('new_justificative');
             $table->text('last_justificative');
