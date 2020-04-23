@@ -11,25 +11,12 @@
 |
 */
 
-/* $router->get('/', function () use ($router) {
-    return $router->app->version();
-}); */
-
 // API route group
 $router->group(['prefix' => 'api'], function () use ($router) {
-    // Matches "/api/register
-    //$router->post('register', 'AuthController@register');
 
-    // Matches "/api/login
-    //$router->post('login', 'AuthController@login');
+    $router->get('systems', 'SecuritySystemController@index');
 
-    // Matches "/api/profile
-    //$router->get('profile', 'UserController@profile');
+    $router->post('systems', 'SecuritySystemController@create');
 
-    // Matches "/api/users/1
-    //get one user by id
-    //$router->get('users/{id}', 'UserController@singleUser');
-
-    // Matches "/api/users
-    //$router->get('users', 'UserController@allUsers');
+    $router->put('systems/{id}', 'SecuritySystemController@update');
 });
