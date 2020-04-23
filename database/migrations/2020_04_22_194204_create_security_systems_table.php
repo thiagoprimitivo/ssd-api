@@ -21,8 +21,8 @@ class CreateSecuritySystemsTable extends Migration
             $table->string('url', 50)->nullable();
             $table->enum('status', ['Ativo', 'Cancelado'])->default('Ativo');
             $table->string('user', 100)->nullable();
-            $table->text('new_justificative')->nullable();
-            $table->text('last_justificative')->nullable();
+            $table->text('newJustificative')->nullable();
+            $table->text('lastJustificative')->nullable();
             $table->timestamps();
         });
     }
