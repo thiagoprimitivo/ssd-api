@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Entities\SecuritySystem;
 use App\Transformers\SecuritySystemTransformer;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\Criteria;
 use Illuminate\Http\Request;
 
 class SecuritySystemController extends Controller
@@ -77,5 +78,26 @@ class SecuritySystemController extends Controller
             return response()->json(['ok' => false], 500);
         }*/
 
+     }
+
+     public function search(Request $request, EntityManagerInterface $entityManager) {
+        $description = $request->filled('description') ? $request->get('description') : "###";
+        $acronyms = $request->filled('acronyms') ? $request->get('acronyms') : "###";
+        $email = $request->filled('email') ? $request->get('email') : "###";
+
+        $security_systems = $entityManager
+            ->getRepository(SecuritySystem::class)
+            ->createQueryBuilder('s')
+            ->where('s.description LIKE :description')
+            ->orWhere('s.acronyms LIKE :acronyms')
+            ->orWhere('s.email LIKE :email')
+            ->setParameter('description', '%'.$description.'%')
+            ->setParameter('acronyms', '%'.$acronyms.'%')
+            ->setParameter('email', '%'.$email.'%')
+            ->orderBy('s.id', 'DESC')
+            ->getQuery()
+            ->getArrayResult();
+
+        return $security_systems;
      }
 }

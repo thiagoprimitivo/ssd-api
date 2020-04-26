@@ -21,4 +21,6 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('systems', 'SecuritySystemController@store');
 
     $router->put('systems/{id}', 'SecuritySystemController@update');
+
+    $router->post('systems/search', 'SecuritySystemController@search');
 });
