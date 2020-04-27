@@ -152,7 +152,9 @@ class SecuritySystem
 
     public function getUpdatedAt()
     {
-        return $this->updated_at;
+        $data_formatada = $this->updated_at ? date_format($this->updated_at, 'Y-m-d H:i:s') : $this->updated_at;
+
+        return $data_formatada;
     }
 
     public function setUpdatedAt($updated_at)

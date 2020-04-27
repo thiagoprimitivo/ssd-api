@@ -7,6 +7,7 @@ use App\Transformers\SecuritySystemTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Criteria;
 use Illuminate\Http\Request;
+use Datetime;
 
 class SecuritySystemController extends Controller
 {
@@ -20,33 +21,68 @@ class SecuritySystemController extends Controller
         return $transformer->transformAll($security_systems);
      }
 
-     public function show($id, EntityManagerInterface $entityManager) {
-        $security_system = $entityManager
-            ->getRepository(SecuritySystem::class)
-            ->findOneBy([
-                'id' => $id
-            ]);
+    public function show($id, EntityManagerInterface $entityManager) {
+       $security_system = $entityManager
+           ->getRepository(SecuritySystem::class)
+           ->findOneBy([
+               'id' => $id
+           ]);
 
         $transformer = new SecuritySystemTransformer();
-       return $transformer->transform($security_system);
-     }
+        return $transformer->transform($security_system);
+    }
 
     public function store(Request $request, EntityManagerInterface $entityManager) {
-        $security_system = new SecuritySystem(
-            $request->get('description'),
-            $request->get('acronyms'),
-            $request->get('email'),
-            $request->get('url')
-        );
+        try {
 
-        $entityManager->persist($security_system);
-        $entityManager->flush();
+            $this->validate($request, [
+                'description' => 'required|max:100',
+                'acronyms' => 'required|max:10',
+                'email' => 'max:100|email',
+                'url' => 'max:50']
+            );
 
-        return response()->json(['ok' => true], 201);
+            $security_system = new SecuritySystem(
+                $request->get('description'),
+                $request->get('acronyms'),
+                $request->get('email'),
+                $request->get('url')
+            );
+
+            $entityManager->persist($security_system);
+            $entityManager->flush();
+
+            return response()->json(['ok' => true], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['ok' => false, 'error' => $e->response->original],500);
+
+        } catch (\Exception $e) {
+
+            return response()->json(['ok' => false], 500);
+
+        }
     }
 
     public function update($id, Request $request, EntityManagerInterface $entityManager) {
-        //try {
+        try {
+
+            $this->validate($request, [
+                'description' => 'required|max:100',
+                'acronyms' => 'required|max:10',
+                'email' => 'max:100|email',
+                'url' => 'max:50',
+                'status' => 'max:50',
+                'new_justificative' => 'max:500'
+                ]
+            );
+
+            $data_atual = new DateTime();
+
+            // Como não há sessão de usuário, utilizaremos um usuário fixo
+            $responsible_user = "Thiago Primitivo de Oliveira";
+
             $security_system = $entityManager
                 ->getRepository(SecuritySystem::class)
                 ->findOneBy([
@@ -58,25 +94,26 @@ class SecuritySystemController extends Controller
             $security_system->setEmail($request->get('email'));
             $security_system->setUrl($request->get('url'));
             $security_system->setStatus($request->get('status'));
-            $security_system->setUpdatedAt(null);
-            $security_system->setResponsibleUser($request->get('responsible_user'));
-            $security_system->setNewJustificative($request->get('new_justificative'));
-            $security_system->setLastJustificative($security_system->getNewJustificative());
+            $security_system->setUpdatedAt($data_atual);
+            $security_system->setResponsibleUser($responsible_user);
+            $security_system->setNewJustificative(null);
+            $security_system->setLastJustificative($request->get('new_justificative'));
 
             $entityManager->flush();
 
             $transformer = new SecuritySystemTransformer();
 
-            return response()->json(
-                [
-                    'ok' => true,
-                    'data' => $transformer->transform($security_system)
-                ],
-                201
-            );
-        /*} catch (\Exception $e) {
+            return response()->json(['ok' => true, 'data' => $transformer->transform($security_system)], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json(['ok' => false, 'error' => $e->response->original],500);
+
+        } catch (\Exception $e) {
+
             return response()->json(['ok' => false], 500);
-        }*/
+
+        }
 
      }
 
